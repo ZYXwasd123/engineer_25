@@ -1,5 +1,5 @@
 # 设置CMSIS-DSP的根目录
-set(CMSIS_DSP_ROOT "D:/Keil_v5_Packs/ARM/CMSIS-DSP/1.16.2")
+set(CMSIS_DSP_ROOT "C:/abc/keil_packs/arm/CMSIS-DSP/1.16.2")
 
 # 设置必要的CMSIS-DSP选项
 set(NEON OFF CACHE BOOL "Neon acceleration")
