@@ -89,6 +89,7 @@ void action_ctrl_f_callback(KeyEventType event);
 void action_e_callback(KeyEventType event);
 void action_f_callback(KeyEventType event);
 void robo_arm_g_callback(KeyEventType event);
+void robo_arm_shift_g_callback(KeyEventType event);
 
 void chassis_motor_detect() {
     buzzer.PushMusic<8>(Buzzer::error_music);
@@ -223,6 +224,7 @@ void StartTask() {
     KeyBoardRegister(interact.keyList, Key_B, CombineKey_Ctrl, reset_err_ctrl_b_callback);
     KeyBoardRegister(interact.keyList, Key_G, CombineKey_Ctrl, robo_arm_ctrl_g_callback);
     KeyBoardRegister(interact.keyList, Key_G, CombineKey_None, robo_arm_g_callback);
+    KeyBoardRegister(interact.keyList, Key_G, CombineKey_Shift, robo_arm_shift_g_callback);
 
 
     interact.remote_control.start();

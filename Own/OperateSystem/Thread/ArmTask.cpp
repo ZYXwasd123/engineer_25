@@ -115,7 +115,7 @@ void ArmTask() {
         }
         if ((cnt + 2) % 5 == 0) {
             xSemaphoreTake(CAN1MutexHandle, portMAX_DELAY);
-            roboArm.joint1.set_position(roboArm.target.joint1.angle, roboArm.target_speed[0]);
+            roboArm.joint1.set_position(roboArm.target.joint1.angle, roboArm.target_speed[0]);  // 位置闭环控制
             xSemaphoreGive(CAN1MutexHandle);
         }
 

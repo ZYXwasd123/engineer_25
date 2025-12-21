@@ -15,7 +15,7 @@ void ChassisTask() {
         chassis.update_slope(interact.chassis.mode);
         chassis.UpdatePid();
         if (++time % 2 == 0)
-            chassis.send_foc();
+            chassis.send_foc(0, 120, 0);
         ChassisHeapCnt = uxTaskGetStackHighWaterMark(NULL);
 
         osDelay(1);

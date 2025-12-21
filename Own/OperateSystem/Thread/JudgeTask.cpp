@@ -16,7 +16,8 @@ UI::ui_item UI::str_list[30];
 uint8_t UI::str_index = 0;
 // uint32_t cnt_change;
 // uint32_t cnt_trans;
-void JudgeTask() {
+void JudgeTask()
+	{
     while (!ui.is_get_id.load()) {
         osDelay(1);
     }

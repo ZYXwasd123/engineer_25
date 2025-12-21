@@ -1,7 +1,9 @@
 //
 // Created by Administrator on 24-10-3.
 //
-
+extern "C" {
+#include "cmsis_os.h"
+}
 #include "Buzzer/Buzzer.hpp"
 #include "CAN/SuperCan.hpp"
 #include "CDC/SuperCDC.hpp"
@@ -25,6 +27,8 @@ __attribute__((section(".DTCMRAM"))) CustomHeap DTCMHeap(DTCMUsed, sizeof(DTCMUs
 __attribute__((section(".RAM_D1"))) CustomHeap D1Heap(D1Used, sizeof(D1Used));
 __attribute__((section(".RAM_D2"))) CustomHeap D2Heap(D2Used, sizeof(D2Used));
 __attribute__((section(".RAM_D3"))) CustomHeap D3Heap(D3Used, sizeof(D3Used));
+
+osMutexId flash_mutex_id;
 
 W25Q64 w25q64(&hospi2);
 
@@ -55,13 +59,16 @@ Buzzer buzzer(&htim12, TIM_CHANNEL_2);
 Chassis chassis(&canPlus2, {Slope(15, 1), Slope(15, 1), Slope(0.1, 0), Slope(15, 1)}, chassis_dep::base_motor_default,
                 chassis_dep::extend_motor_default);
 
+float j4_offset_val = 65.0f;  // 翎控丢零点，重设后存进flash，每次上电时读取
+uint16_t uartlk_param[9] = {};
+
 // joint3的offset是不会变的，因为joint3是没有经过180°的，joint1也是一样
 RoboArm roboArm(&canPlus1,&huart1, 5, 65536, 10, 1, 65536, 6, 2, 65536, 6, 3, 65536, 6, 4, 65536, 10,
                 1, Pid(400, 0.002, 0.8, 500, 1200, 0), Pid(0.25, 0.010, 0.00, 300, 500, 1.0),
                 7, 65536, 10,
                 6, 65536, 10,
                 {88.961792, -45.0833359 + 360 - 102.278336 + 5, -45.0833359 + 37.5383339 + 5, 135 + 27.9533329,
-                 137.697144, /*(310.715 - 360)*/-56.7663574, 0});
+                 206.0f, /*(310.715 - 360)*/61, 0});
 
 __attribute__((section(".RAM_D3"))) RGBLED Led(&hspi6);
 
@@ -74,6 +81,7 @@ SuperGPIO power_24v_right(GPIOC, GPIO_PIN_14);
 SuperGPIO power_24v_left(GPIOC, GPIO_PIN_13);
 
 UI ui(102, 0x0166, &huart7);
+uint16_t power_buffer = 0;
 
 OneStepGetControl OSG::mode   = OneStepGetControl::AUTO;
 OSG one_step_gets(Pid(100, 0.0000, 20, 500, 9000, 0.0), Pid(1.5, 0, 2.3, 4000, 7000, 1),

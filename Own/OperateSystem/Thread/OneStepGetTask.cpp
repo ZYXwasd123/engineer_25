@@ -13,15 +13,18 @@ extern "C" {
 #endif
 
 
-void OneStepGetTask() {
-    one_step_gets.rotate.set_target(osg::rota_init);
+void OneStepGetTask()
+{
+    // one_step_gets.rotate.set_target(osg::rota_init);
     uint32_t time = 0;
-    while (1) {
-        if (time++ % 10 == 0) {
-//            one_step_gets.rotate.read();
-            one_step_gets.rotate.set_pos_speed(one_step_gets.rotate.target / 180.f * 2048,100);
-        }
-        if (time%2 == 0) {
+    while (1)
+    {
+        //if (time++ % 10 == 0)
+        //{
+            // one_step_gets.rotate.read();
+            // one_step_gets.rotate.set_pos_speed(one_step_gets.rotate.target / 180.f * 2048,100);
+        //}
+        if (++time % 2 == 0) {
             one_step_gets.Yright.state_handle();
             one_step_gets.Yleft.state_handle();
             one_step_gets.Xright.state_handle();

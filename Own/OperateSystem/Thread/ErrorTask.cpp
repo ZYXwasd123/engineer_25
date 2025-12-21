@@ -10,7 +10,7 @@
 #include "RoboArm/RoboArm.hpp"
 
 void ErrorTask() {
-    osThreadSuspend(ERROR_TASKHandle);
+    osThreadSuspend(ERROR_TASKHandle);  // 挂起自身，恢复后进入急停
     osThreadSuspendAll();
     if (ARM_INIT_TASKHandle != NULL) {
          vTaskDelete(ARM_INIT_TASKHandle);

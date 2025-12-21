@@ -40,14 +40,18 @@ void IMUTask() {
                 case 1:
                     switch (imu.offset.restart_measure) {
                     case IMU_MEASURE::MEASURE_DISABLE:
-                            w25q64.raed_buffer(IMU_OFFSET_ADDRESS, (uint8_t *) &imu.offset.correct, 12);
+                            // osMutexWait(flash_mutex_id, osWaitForever);
+                            w25q64.read_buffer(IMU_OFFSET_ADDRESS, (uint8_t *) &imu.offset.correct, 16);
+                            // osMutexRelease(flash_mutex_id);
                             imu_flag = 2;
                             break;
                     case IMU_MEASURE::MEASURE_ENABLE:
                             imu.update_offset(++correct_times, imu_flag);
                             if (imu_flag == 2) {
+                                // osMutexWait(flash_mutex_id, osWaitForever);
                                 w25q64.erase_sector_4(IMU_OFFSET_ADDRESS);
-                                w25q64.write_buffer(IMU_OFFSET_ADDRESS, (uint8_t *) &imu.offset.correct, 12);
+                                w25q64.write_buffer(IMU_OFFSET_ADDRESS, (uint8_t *) &imu.offset.correct, 16);
+                                // osMutexRelease(flash_mutex_id);
                             }
                             break;
                     }

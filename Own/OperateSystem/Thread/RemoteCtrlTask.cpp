@@ -30,9 +30,9 @@ void RemoteCtrlTask() {
         if (!interact.remote_control.detect.isLost) {
             if (rc.left != static_cast<uint8_t>(RemoteControl::lever::lower) && rc.right != static_cast<uint8_t>(RemoteControl::lever::lower)) {
                 if (rc.wheel < -500) {
-                    interact.kb = interact_dep::kb_state::RC_ENABLE;
+                    interact.kb = interact_dep::kb_state::RC_ENABLE;  // 键盘
                 } else if (rc.wheel > 500) {
-                    interact.kb = interact_dep::kb_state::DISABLE;
+                    interact.kb = interact_dep::kb_state::DISABLE;  // 纯遥控
                 }
                 if (interact.kb == interact_dep::kb_state::DISABLE) {
                     if (rc.left == static_cast<uint8_t>(RemoteControl::lever::upper)
@@ -50,24 +50,24 @@ void RemoteCtrlTask() {
                         interact.chassis.mode  = interact_dep::chassis_mode::NORMAL;
                     } else if (rc.left == static_cast<uint8_t>(RemoteControl::lever::middle)
                                && rc.right == static_cast<uint8_t>(RemoteControl::lever::middle)) {
-                        interact.robo_arm.mode = interact_dep::robo_mode::NONE;
+												interact.robo_arm.mode = interact_dep::robo_mode::NONE;  // 只控制底盘
                         interact.chassis.mode  = interact_dep::chassis_mode::NORMAL;
                     }
                 }
             } else if (rc.left == static_cast<uint8_t>(RemoteControl::lever::lower)) {
                 if (interact.kb == interact_dep::kb_state::DISABLE) {
-                    interact.chassis.mode = interact_dep::chassis_mode::NONE;
+									interact.chassis.mode = interact_dep::chassis_mode::NONE;  // 只控制机械臂
                     if (rc.right == static_cast<uint8_t>(RemoteControl::lever::upper)) {
-                        interact.robo_arm.mode = interact_dep::robo_mode::XYZ;
+                        interact.robo_arm.mode = interact_dep::robo_mode::XYZ;  // xyz模式
                     } else if (rc.right == static_cast<uint8_t>(RemoteControl::lever::middle)) {
                         if (interact.robo_arm.mode != interact_dep::robo_mode::NORMAL1
                             && interact.robo_arm.mode != interact_dep::robo_mode::NORMAL2) {
                             interact.robo_arm.mode = interact_dep::robo_mode::NORMAL1;
                         }
                         if (rc.wheel < -500) {
-                            interact.robo_arm.mode = interact_dep::robo_mode::NORMAL1;
+                            interact.robo_arm.mode = interact_dep::robo_mode::NORMAL1;  // 前四个joint
                         } else if (rc.wheel > 500) {
-                            interact.robo_arm.mode = interact_dep::robo_mode::NORMAL2;
+                            interact.robo_arm.mode = interact_dep::robo_mode::NORMAL2;  // 后两个joint和气泵
                         }
                     }
                 }
@@ -79,9 +79,9 @@ void RemoteCtrlTask() {
                         interact.robo_arm.mode = interact_dep::robo_mode::VISION;
                     }
                     if (rc.wheel < -500) {
-                        interact.robo_arm.mode = interact_dep::robo_mode::VISION;
+                        interact.robo_arm.mode = interact_dep::robo_mode::VISION;  // 视觉
                     } else if (rc.wheel > 500) {
-                        interact.robo_arm.mode = interact_dep::robo_mode::CUSTOM;
+                        interact.robo_arm.mode = interact_dep::robo_mode::CUSTOM;  // 自定义控制器
                     }
                 }
             }
