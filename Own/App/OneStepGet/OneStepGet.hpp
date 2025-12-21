@@ -37,16 +37,17 @@ public:
     void set_target(float target) { axis.target_set(target); };
     void set_step(float step) {axis.step_set(step);};
 
-    void set_positive_threshold(int16_t threshold) { pThresholdBlock = threshold; };
-    void set_negative_threshold(int16_t threshold) { nThresholdBlock = threshold; };
+    void set_positive_threshold(int16_t threshold) { pThresholdBlock = threshold; }
+    void set_negative_threshold(int16_t threshold) { nThresholdBlock = threshold; }
 
-    void set_state(state s, float param) {
-        if (s == state::RESET) {
+    void set_state(state s, float param)
+    {
+        if (s == state::RESET)
+        {
             this->s = state::RESET;
             return;
-        } else if (this->s != state::P_BLOCK && this->s != state::N_BLOCK) {
-            this->s = s;
         }
+        if (this->s != state::P_BLOCK && this->s != state::N_BLOCK) this->s = s;
         axis.target_set(param);
     }
     Motor<T> Motor;
@@ -63,66 +64,89 @@ private:
 };
 
 template<typename T>
-void Translation<T>::move_handle() {
-    Motor.set_position(axis.get());
+void Translation<T>::move_handle()
+{
+    Motor.set_position(axis.get());  // 步进移动
 };
 template<typename T>
 void Translation<T>::state_handle() {
     switch (s) {
         case state::P_BLOCK:
-            if (pblock_count > -5)
+            if (pblock_count > -5)  // 未脱离堵转，目标后移
                 axis.decrease();
-            else {
+            else  // 脱离堵转，回到移动状态
+            {
                 pblock_count = 0;
                 s = state::MOVE;
             }
-            if (Motor.feedback.raw_data.current < pThresholdBlock) {
+            if (Motor.feedback.raw_data.current < pThresholdBlock)
+            {
                 --pblock_count;
-            } else {
+            }
+            else
+            {
                 ++pblock_count;
             }
             break;
         case state::N_BLOCK:
             if (nblock_count > -5)
                 axis.increase();
-            else {
+            else
+            {
                 nblock_count = 0;
                 s = state::MOVE;
             }
-            if (Motor.feedback.raw_data.current > nThresholdBlock) {
+            if (Motor.feedback.raw_data.current > nThresholdBlock)
+            {
                 --nblock_count;
-            } else {
+            }
+            else
+            {
                 ++nblock_count;
             }
             break;
         case state::MOVE:
             axis.update();
-            if (Motor.feedback.raw_data.current > pThresholdBlock) {
-                if(++pblock_count > 20) {
+            if (Motor.feedback.raw_data.current > pThresholdBlock)  // 大于最大值，正向堵转
+            {
+                if(++pblock_count > 20)
+                {
                     s = state::P_BLOCK;
                 };
-            } else if (Motor.feedback.raw_data.current < nThresholdBlock) {
-                if(++pblock_count > 20) {
+            }
+            else if (Motor.feedback.raw_data.current < nThresholdBlock)  // 小于最小值，负向堵转
+            {
+                if(++pblock_count > 20)
+                {
                     s = state::N_BLOCK;
                 };
             }
             break;
         case state::RESET:
-            if (polarity) {
-                if (Motor.feedback.raw_data.current < nThresholdBlock) {
-                    if(++nblock_count > 10) {
+            if (polarity)  // 正极性负向撤，负极性正向撤，直到机械限位
+            {
+                if (Motor.feedback.raw_data.current < nThresholdBlock)
+                {
+                    if(++nblock_count > 10)  // 负向堵转，设为当前点
+                    {
                         Motor.total_position() = 0;
                         axis.target_set(0);
                         axis.target_arrive();
                         nblock_count = 10;
                         s = state::N_BLOCK;
-                    };
-                } else {
+                    }
+                }
+                else  // 负向未堵转，继续后缩
+                {
                     axis.target_set(-10000);
                 }
-            } else {
-                if (Motor.feedback.raw_data.current > pThresholdBlock) {
-                    if(++pblock_count > 10) {
+            }
+            else
+            {
+                if (Motor.feedback.raw_data.current > pThresholdBlock)
+                {
+                    if(++pblock_count > 10)
+                    {
                         Motor.total_position() = 0;
                         Motor.clear();
                         axis.target_set(0);
@@ -130,11 +154,13 @@ void Translation<T>::state_handle() {
                         pblock_count = 10;
                         s = state::P_BLOCK;
                     }
-                } else {
+                }
+                else
+                {
                     axis.target_set(10000);
                 }
             }
-            axis.update();
+            axis.update();  // 更新步进值
             break;
     }
 };
@@ -181,8 +207,8 @@ public:
               Yright(yr_pos_pid, yr_speed_pid, yr_id, yr_slope,yr_p,yr_pt,yr_nt),
               rotate_move(rotate_pos_pid, rotate_speed_pid, rotate_id, rotate_slope,rotate_p,rotate_pt,rotate_nt),
               rotate(canPluse, id) {};
-        Translation<M2006Pos> Xleft;
-        Translation<M2006Pos> Xright;
+        Translation<M2006Pos> Xleft;  // 水平
+        Translation<M2006Pos> Xright;  // 抬升
         Translation<M3508Pos> Yleft;
         Translation<M3508Pos> Yright;
 

@@ -636,7 +636,7 @@ W25Q64::W25Q64Status W25Q64::write_buffer(uint32_t addr, uint8_t *data, uint32_t
 *  FANKE
 *****************************************************************************************************************FANKE************/
 
-W25Q64::W25Q64Status W25Q64::raed_buffer(uint32_t addr, uint8_t *data, uint32_t size)
+W25Q64::W25Q64Status W25Q64::read_buffer(uint32_t addr, uint8_t *data, uint32_t size)
 {
     OSPI_RegularCmdTypeDef  sCommand;// OSPI传输配置
 

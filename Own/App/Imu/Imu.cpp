@@ -17,6 +17,9 @@ extern "C" {
 
 #include <MyMath/MyMath.hpp>
 #include "Imu.hpp"
+
+extern float j4_offset_val;
+
 float H723_Temperature;
 void Imu::init() {
     IMU_QuaternionEKF_Init(10, 0.001, 10000000, 1, 0.001f, 0); //ekf初始化
@@ -102,6 +105,7 @@ void Imu::update_offset(uint32_t cnt, uint8_t &flag) {
         offset.correct[0] /= offset.target_times;
         offset.correct[1] /= offset.target_times;
         offset.correct[2] /= offset.target_times;
+        offset.correct[3] = j4_offset_val;
         flag = 2;
     }
 }

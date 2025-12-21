@@ -82,8 +82,8 @@ private:
     Count rx_cnt{};
 };
 
-template<uint32_t precision_range, uint32_t reduction_head, uint32_t reduction_src>
-void default_motor<precision_range, reduction_head, reduction_src>::get_feedback(const uint8_t* data) {
+template<uint32_t precision_range, uint32_t reduction_head, uint32_t reduction_src>  // 声明三个非类型模板参数（编译期常量）
+void default_motor<precision_range, reduction_head, reduction_src>::get_feedback(const uint8_t* data) {  // 类外定义重复声明
     feedback.raw_data.position    = static_cast<int16_t>(((data[0] << 8) | data[1]));
     feedback.raw_data.speed       = static_cast<int16_t>((data[2] << 8) | data[3]);
     feedback.raw_data.current     = static_cast<int16_t>((data[4] << 8) | data[5]);
@@ -105,4 +105,4 @@ void default_motor<precision_range, reduction_head, reduction_src>::get_feedback
     feedback.data.last_position  = feedback.data.position;
     ++rx_cnt;
     detect.update();
-};
+}

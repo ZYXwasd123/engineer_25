@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 #include "octospi.h"
+#include "cmsis_os.h"
 
 #ifdef __cplusplus
 }
@@ -47,7 +48,10 @@ extern "C" {
 #define W25Qxx_Mem_Addr                     0x90000000  // 内存映射模式的地址
 
 #define IMU_OFFSET_ADDRESS 0
+#define MOTOR_OFFSET_ADDRESS 4096  // 1 * 16 ^ 3 = 4096B
 
+extern osMutexId flash_mutex_id;
+osMutexDef(flash_mutex);
 
 class W25Q64 {
     enum W25Q64Status {
@@ -58,11 +62,13 @@ class W25Q64 {
         W25Qxx_ERROR_Erase = -4,
         W25Qxx_ERROR_TRANSMIT = -5,
         W25Qxx_ERROR_MemoryMapped = -6
-
     };
 
 public:
-    explicit W25Q64(OSPI_HandleTypeDef *_hospi) : hospi(_hospi) {};
+    explicit W25Q64(OSPI_HandleTypeDef *_hospi) : hospi(_hospi)
+    {
+        flash_mutex_id = osMutexCreate(osMutex(flash_mutex));
+    }
 
     OSPI_HandleTypeDef *hospi;
 
@@ -77,7 +83,7 @@ public:
 
     W25Q64Status write_buffer(uint32_t addr, uint8_t *data, uint32_t size);
 
-    W25Q64Status raed_buffer(uint32_t addr, uint8_t *data, uint32_t size);
+    W25Q64Status read_buffer(uint32_t addr, uint8_t *data, uint32_t size);
 
     W25Q64Status write_page(uint32_t addr, uint8_t *data, uint32_t size);
 private:

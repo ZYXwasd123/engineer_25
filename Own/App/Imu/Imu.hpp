@@ -48,7 +48,7 @@ public:
 
     struct {
         bool on;
-        float correct[3];
+        float correct[4];
         uint32_t target_times;
         IMU_MEASURE restart_measure;
     } offset;

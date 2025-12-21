@@ -16,6 +16,9 @@ public:
     explicit M3508Speed(Args&&... args)
         : SpeedPidControl(std::forward<Args>(args)...) {};
 
+    float GetRawSpeed() const {
+        return this->feedback.raw_data.speed;
+    }
     bool get_feedback(const uint16_t id, const uint8_t* data) {
         if (id == this->rx_id) {
             SpeedPidControl::get_feedback(data);
