@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <atomic>
 #include <cstring>
 
 template<uint32_t N, typename T = uint8_t>
