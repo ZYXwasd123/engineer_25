@@ -11,7 +11,7 @@ extern "C" {
 extern osThreadId ERROR_TASKHandle;
 }
 extern std::atomic<bool> rc_ready;
-
+extern uint16_t power_buffer;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     UNUSED(huart);
 #if USING_UART_IT
@@ -49,7 +49,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         }
 
         if (interact.remote_control.rcInfo.right == 2 && interact.remote_control.rcInfo.left == 2)
-            osThreadResume(ERROR_TASKHandle);
+            osThreadResume(ERROR_TASKHandle);  // 左右摇杆拨下，进入急停任务
 
     } else if (huart == interact.image_trans.uartPlus.uart) {
         using namespace crc;
@@ -60,7 +60,30 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
         ++interact.sub_board.uartPlus.rx_cnt;
         interact.sub_board.get_feedback();
         interact.sub_board.start_receive();
-    } else if (huart == ui.uartPlus.uart) {
+    } else if (huart == ui.uartPlus.uart)  // UART7
+    {
+//        using namespace crc;
+//        for (uint8_t i = 0; i < Size - 9; ++i)
+//        {
+//            auto data = &ui.uartPlus.rx_buffer[i];
+//            if (data[0] == 0xA5)
+//            {
+//                uint16_t len = (data[2] << 8 | data[1]);
+//                auto rx_cmd_id = data[6] << 8 | data[5];
+//                if (verify_crc16_check_sum(data, len + 9))
+//                {
+//                    switch (rx_cmd_id)
+//                    {
+//                        case 0x202:
+//                            power_buffer = static_cast<uint16_t>(data[16]) << 8 | data[15];
+//                        default:
+//                            break;
+//                    }
+//                }
+//            }
+//        }
+//				ui.start_receive();
+//    }
         using namespace crc;
         ++ui.uartPlus.rx_cnt;
         for (int i = 0; i < Size - 9; ++i) {
@@ -89,6 +112,8 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
                             break;
                         case 0x309:
                             break;
+												case 0x202:
+														power_buffer = static_cast<uint16_t>(data[16]) << 8 | data[15];
                         default:
                             break;
                     }
@@ -97,8 +122,9 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
             }
         }
         ui.start_receive();
-    } else if (huart == roboArm.joint1.uart.uart) {
-        roboArm.joint1.get_feed_back(roboArm.joint1.uart.rx_buffer, Size);
+    }
+    else if (huart == roboArm.joint1.uart.uart) {
+        roboArm.joint1.get_feed_back(roboArm.joint1.uart.rx_buffer);
         roboArm.joint1.start();
     }
 #endif

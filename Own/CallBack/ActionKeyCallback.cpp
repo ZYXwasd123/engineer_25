@@ -27,10 +27,14 @@ extern interact_dep::Actions reset1;
 extern interact_dep::Actions get_silver_mine;
 
 
-void action_z_callback(KeyEventType event) {
-    if (interact.robo_arm.mode != interact_dep::robo_mode::CUSTOM) {
-        if (OSG::mode == OneStepGetControl::MANUAL) {
-            switch (event) {
+void action_z_callback(KeyEventType event)
+{
+    if (interact.robo_arm.mode != interact_dep::robo_mode::CUSTOM)
+    {
+        if (OSG::mode == OneStepGetControl::MANUAL)  // 左侧缩回
+        {
+            switch (event)
+            {
                 case KeyEvent_OnDown:
                 case KeyEvent_OnLongPress:
                 case KeyEvent_OnPressing:
@@ -42,8 +46,11 @@ void action_z_callback(KeyEventType event) {
                 default:
                     break;
             }
-        } else if (OSG::mode == OneStepGetControl::AUTO) {
-            switch (event) {
+        }
+        else if (OSG::mode == OneStepGetControl::AUTO)  // 取金矿
+        {
+            switch (event)
+            {
                 case KeyEvent_OnClick:
                     get_gold_group.reset();
                     interact.actions_group = &get_gold_group;
@@ -52,20 +59,25 @@ void action_z_callback(KeyEventType event) {
                 default:
                     break;
             }
-        } else if (OSG::mode == OneStepGetControl::ROBO_ARM) {
-            switch (event) {
-                case KeyEvent_OnClick:
+        }
+        else if (OSG::mode == OneStepGetControl::ROBO_ARM)  // 啥都不干
+        {
+            //switch (event)
+            //{
+                //case KeyEvent_OnClick:
                     // arm_get_gold_group.reset();
                     // interact.actions_group = &arm_get_gold_group;
                     // interact.robo_arm.mode = interact_dep::robo_mode::ACTIONS_GROUP;
-
-                    break;
-                default:
-                    break;
-            }
+                    //break;
+                //default:
+                    //break;
+            //}
         }
-    } else {
-        switch (event) {
+    }
+    else  // 自定义控制器下右转
+    {
+        switch (event)
+        {
             case KeyEvent_OnDown:
             case KeyEvent_OnLongPress:
             case KeyEvent_OnPressing:
@@ -96,16 +108,22 @@ void action_shift_z_callback(KeyEventType event) {
             default:
                 break;
         }
-    } else if (OSG::mode == OneStepGetControl::AUTO) {
-        switch (event) {
+    }
+    else if (OSG::mode == OneStepGetControl::AUTO)  // 取左侧金矿
+    {
+        switch (event)
+        {
             case KeyEvent_OnClick:
                 interact.set_action_group(get_left_gold_group);
                 break;
             default:
                 break;
         }
-    } else if (OSG::mode == OneStepGetControl::ROBO_ARM) {
-        switch (event) {
+    }
+    else if (OSG::mode == OneStepGetControl::ROBO_ARM)
+    {
+        switch (event)
+        {
             case KeyEvent_OnClick:
                 interact.set_action(arm_get_gold);
                 break;
@@ -115,25 +133,32 @@ void action_shift_z_callback(KeyEventType event) {
     }
 }
 
-
-void action_ctrl_z_callback(KeyEventType event) {
-    if (OSG::mode == OneStepGetControl::MANUAL) {
-        switch (event) {
+void action_ctrl_z_callback(KeyEventType event)
+{
+    if (OSG::mode == OneStepGetControl::MANUAL)  // 左侧开闭
+    {
+        switch (event)
+        {
             case KeyEvent_OnClick:
                 interact.sub_board.toggle_lf_valve();
                 break;
             default:
                 break;
         }
-    } else if (OSG::mode == OneStepGetControl::AUTO) {
-        switch (event) {
+    }
+    else if (OSG::mode == OneStepGetControl::AUTO)  // 取右侧金矿
+    {
+        switch (event)
+        {
             case KeyEvent_OnClick:
                 interact.set_action_group(get_right_gold_group);
                 break;
             default:
                 break;
         }
-    } else if (OSG::mode == OneStepGetControl::ROBO_ARM) {
+    }
+    else if (OSG::mode == OneStepGetControl::ROBO_ARM)
+    {
         switch (event) {
             case KeyEvent_OnClick:
                 interact.set_action(arm_get_gold_z);
@@ -226,7 +251,6 @@ void action_shift_x_callback(KeyEventType event) {
     }
 }
 
-
 void action_ctrl_x_callback(KeyEventType event) {
     if (OSG::mode == OneStepGetControl::MANUAL) {
         switch (event) {
@@ -257,7 +281,9 @@ void action_c_callback(KeyEventType event) {
                 default:
                     break;
             }
-        } else if (OSG::mode == OneStepGetControl::AUTO) {
+        }
+        else if (OSG::mode == OneStepGetControl::AUTO)  // 左侧取银（没用）
+        {
             switch (event) {
                 case KeyEvent_OnClick:
                     interact.set_action_group(get_silver_group);
@@ -312,7 +338,6 @@ void action_shift_c_callback(KeyEventType event) {
     }
 }
 
-
 void action_ctrl_c_callback(KeyEventType event) {
     if (OSG::mode == OneStepGetControl::MANUAL) {
         switch (event) {
@@ -351,7 +376,9 @@ void action_v_callback(KeyEventType event) {
                 default:
                     break;
             }
-        } else if (OSG::mode == OneStepGetControl::AUTO) {
+        }
+        else if (OSG::mode == OneStepGetControl::AUTO)  // 右侧存矿
+        {
             switch (event) {
                 case KeyEvent_OnClick:
                     interact.set_action_group(put_mine_group);
@@ -381,7 +408,8 @@ void action_v_callback(KeyEventType event) {
     }
 }
 
-void action_shift_v_callback(KeyEventType event) {
+void action_shift_v_callback(KeyEventType event)
+{
     if (OSG::mode == OneStepGetControl::MANUAL) {
         switch (event) {
             case KeyEvent_OnDown:
@@ -402,8 +430,8 @@ void action_shift_v_callback(KeyEventType event) {
     }
 }
 
-void action_ctrl_v_callback(KeyEventType event) {
-
+void action_ctrl_v_callback(KeyEventType event)
+{
     if (OSG::mode == OneStepGetControl::MANUAL) {
         switch (event) {
             case KeyEvent_OnClick:
@@ -419,14 +447,21 @@ void action_ctrl_v_callback(KeyEventType event) {
     }
 }
 
-void action_b_callback(KeyEventType event) {
-    switch (event) {
+void action_b_callback(KeyEventType event)  // 切换模式
+{
+    switch (event)
+        {
         case KeyEvent_OnClick:
-            if (OSG::mode == OneStepGetControl::AUTO) {
+            if (OSG::mode == OneStepGetControl::AUTO)
+            {
                 OSG::mode = OneStepGetControl::MANUAL;
-            } else if (OSG::mode == OneStepGetControl::MANUAL) {
+            }
+            else if (OSG::mode == OneStepGetControl::MANUAL)
+            {
                 OSG::mode = OneStepGetControl::ROBO_ARM;
-            } else if (OSG::mode == OneStepGetControl::ROBO_ARM) {
+            }
+            else if (OSG::mode == OneStepGetControl::ROBO_ARM)
+            {
                 OSG::mode = OneStepGetControl::AUTO;
             }
             break;
@@ -435,7 +470,8 @@ void action_b_callback(KeyEventType event) {
     }
 }
 
-void action_ctrl_r_callback(KeyEventType event) {
+void action_ctrl_r_callback(KeyEventType event)  // 复位
+{
     switch (event) {
         case KeyEvent_OnClick:
             one_step_gets.Xleft.set_state(translation::state::RESET, 0);
@@ -452,8 +488,10 @@ void action_ctrl_r_callback(KeyEventType event) {
 }
 
 
-void action_shift_f_callback(KeyEventType event) {
-    switch (event) {
+void action_shift_f_callback(KeyEventType event)  // 左侧兑矿准备
+{
+    switch (event)
+    {
         case KeyEvent_OnDown:
         case KeyEvent_OnLongPress:
         case KeyEvent_OnPressing:
@@ -464,8 +502,10 @@ void action_shift_f_callback(KeyEventType event) {
     }
 }
 
-void action_ctrl_f_callback(KeyEventType event) {
-    switch (event) {
+void action_ctrl_f_callback(KeyEventType event)  // 右侧兑矿准备
+{
+    switch (event)
+    {
         case KeyEvent_OnDown:
         case KeyEvent_OnLongPress:
         case KeyEvent_OnPressing:
@@ -477,8 +517,10 @@ void action_ctrl_f_callback(KeyEventType event) {
 
 }
 
-void action_e_callback(KeyEventType event) {
-    switch (event) {
+void action_e_callback(KeyEventType event)  // 向下看
+{
+    switch (event)
+    {
         case KeyEvent_OnDown:
         case KeyEvent_OnLongPress:
         case KeyEvent_OnPressing:
@@ -487,24 +529,24 @@ void action_e_callback(KeyEventType event) {
         default:
             break;
     }
-
-
 }
 
-void action_f_callback(KeyEventType event) {
-    switch (event) {
+void action_f_callback(KeyEventType event)  // 取银矿
+{
+    switch (event)
+    {
         case KeyEvent_OnClick:
             interact.set_action_group(arm_get_silver_group);
             break;
         default:
             break;
     }
-
-
 }
 
-void action_shift_r_callback(KeyEventType event) {
-    switch (event) {
+void action_shift_r_callback(KeyEventType event)  // 大臂回正
+{
+    switch (event)
+    {
         case KeyEvent_OnDown:
         case KeyEvent_OnLongPress:
         case KeyEvent_OnPressing:
