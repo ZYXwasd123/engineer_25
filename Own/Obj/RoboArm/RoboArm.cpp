@@ -2,6 +2,7 @@
 // Created by Administrator on 24-10-23.
 //
 
+#include "Interact/Interact.hpp"
 #include "RoboArm.hpp"
 void RoboArm::enable() {
     using namespace roboarm_dep;
@@ -75,6 +76,13 @@ void RoboArm::close() {
     joint6.close();
 }
 
+void RoboArm::reset_offset()
+{
+    using namespace roboarm_dep;
+    j4_offset_val = joint4.total_position;
+    offset.joint4 = j4_offset_val;
+}
+
 void RoboArm::init_offset(std::array<float, 6>& joint) {
     using namespace roboarm_dep;
 
@@ -85,6 +93,12 @@ void RoboArm::init_offset(std::array<float, 6>& joint) {
     joint2.internal.read_totalposition();
     joint2.external.read_totalposition();
     joint1.require_totalposition();
+	osDelay(1);
+    //joint1.can_require_ctrl_param();
+	osDelay(1);
+    //joint1.require_ctrl_param(ID_SPEED_PARAM);
+	osDelay(1);
+    //joint1.require_ctrl_param(ID_CURRENT_PARAM);
 
 
     // target.joint6.angle = 0;

@@ -20,27 +20,77 @@ extern "C" {
 
 #if USING_CHASSIS == 1
 
-void Chassis::send_foc() {
+
+using namespace CHASSIS_N;
+
+float Chassis::PowerCalc(float _power, const float _vel, const bool _positive)
+{
+    if (const float delta = k2 * k2 * _vel * _vel - 4.f * k1 * (k3 * _vel * _vel + c - _power); delta < 1e-6f)
+        _power = -k2 * _vel / (2.f * k1);
+    else if (_positive)_power = (-k2 * _vel + sqrtf(delta)) / (2.f * k1);  // using VSQRT.F32 instruction
+    else _power = (-k2 * _vel - sqrtf(delta)) / (2.f * k1);
+		if (_power > 16000) return 16000;
+		if (_power < -16000) return -16000;
+		return _power;
+}
+
+void Chassis::send_foc(const float _buffer_left, const float _power_limit, const float _target_buffer)
+{
+    float power[6] {};
+    float init_power_sum = 0.f;
+    float error[6] {};
+    float error_sum = 0.f;
+    float power_max = _power_limit;
+    float current[6] {base.left_front.output(), base.right_front.output(), base.left_rear.output(),
+        base.right_rear.output(), extend.left.output(), extend.right.output()};  // mind the IDs
+    float speed_cur[6] {base.left_front.GetRawSpeed(), base.right_front.GetRawSpeed(), base.left_rear.GetRawSpeed(),
+        base.right_rear.GetRawSpeed(), extend.left.GetRawSpeed(), extend.right.GetRawSpeed()};
+    for (uint8_t i = 0; i < 6; ++i) {
+        power[i] = k1 * current[i] * current[i] + k2 * current[i] * speed_cur[i] + k3 * speed_cur[i] * speed_cur[i] + c;
+        error[i] = wheelSpeed[i] > speed_cur[i] ? wheelSpeed[i] - speed_cur[i] : speed_cur[i] - wheelSpeed[i];
+        init_power_sum += power[i] > 0.f? power[i] : 0.f;
+        error_sum += error[i];
+    }
+    if (init_power_sum > power_max) {
+        if (error_sum > err_sum_max) {
+            for (uint8_t i = 0; i < 6; i++)
+            {
+                if (power[i] > 1e-6f)
+                {
+                    power[i] = power_max * error[i] / error_sum;
+                    current[i] = PowerCalc(power[i], speed_cur[i], wheelSpeed[i] > speed_cur[i]);
+                }
+            }
+        }
+        else if (error_sum < err_sum_min) {
+            for (uint8_t i = 0; i < 6; i++)
+            {
+                if (power[i] > 1e-6f)
+                {
+                    power[i] = power_max * power[i] / init_power_sum;
+                    current[i] = PowerCalc(power[i], speed_cur[i], wheelSpeed[i] > speed_cur[i]);
+                }
+            }
+        }
+        else {
+            const float confidence = (error_sum - err_sum_min) / (err_sum_max - err_sum_min);
+            for (uint8_t i = 0; i < 6; i++)
+            {
+                if (power[i] > 1e-6f)
+                {
+                    power[i] = power_max * (confidence * error[i] / error_sum + (1.f - confidence) * power[i] / init_power_sum);
+                    current[i] = PowerCalc(power[i], speed_cur[i], wheelSpeed[i] > speed_cur[i]);
+                }
+            }
+        }
+    }
+    can->transmit(M3508::foc.TX_LOW_ID, current[0], current[1], current[3], current[2]);
+    can->transmit(M3508::foc.TX_HIGH_ID, current[4], current[5], 0, 0);
+/*
     can->transmit(M3508::foc.TX_LOW_ID, base.left_front.output(), base.right_front.output(), base.right_rear.output(),
                   base.left_rear.output());
     can->transmit(M3508::foc.TX_HIGH_ID, (int16_t) extend.left.output(), (int16_t) extend.right.output(), 0, 0);
-}
-
-void Chassis::send_foc(int16_t left_front, int16_t right_front, int16_t left_rear, int16_t right_rear, int16_t left,
-                       int16_t right) {
-    can->transmit(M3508::foc.TX_LOW_ID, left_front, right_front, left_rear, right_rear);
-    can->transmit(M3508::foc.TX_HIGH_ID, left, right, 0, 0);
-}
-
-void Chassis::send_base_foc(int16_t left_front, int16_t right_front, int16_t left_rear, int16_t right_rear) {
-    can->transmit(M3508::foc.TX_LOW_ID, left_front, right_front, left_rear, right_rear);
-}
-
-void Chassis::send_extend_foc(int16_t left, int16_t right) { can->transmit(M3508::foc.TX_HIGH_ID, left, right, 0, 0); }
-
-void Chassis::send_base_foc() {
-    send_base_foc(base.left_front.output(), base.right_front.output(), base.left_rear.output(),
-                  base.right_rear.output());
+*/
 }
 
 void Chassis::UpdatePid() {
@@ -49,7 +99,6 @@ void Chassis::UpdatePid() {
     base.right_front.set_speed(wheelSpeed[chassis_dep::RightFront]);
     base.left_rear.set_speed(wheelSpeed[chassis_dep::LeftRear]);
     base.right_rear.set_speed(wheelSpeed[chassis_dep::RightRear]);
-
     extend.left.set_speed(wheelSpeed[chassis_dep::ExtendLeft]);
     extend.right.set_speed(wheelSpeed[chassis_dep::ExtendRight]);
 }
